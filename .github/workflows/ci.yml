@@ -48,23 +48,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install WiX Toolset
+        run: choco install wixtoolset -y
+
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build project
         run: cmake --build build --config Release
 
-      - name: Package with CPack (.zip)
+      - name: Package with CPack (.zip, .msi)
         run: |
           cd build
           cpack -G ZIP
+          cpack -G WIX
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/*.zip
+          files: |
+            build/*.zip
+            build/*.msi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   build-macos:
     name: Build on macOS
